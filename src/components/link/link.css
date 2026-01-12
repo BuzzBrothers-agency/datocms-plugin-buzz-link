@@ -88,12 +88,17 @@
     font-size: var(--font-size-xxs);
   }
 
-  .link-field_record-remove {
+  .delete-button {
     position: absolute;
-    top: 0;
-    right: 0;
-    translate: -40% 40%;
-    font-size: var(--font-size-s);
+    top: var(--spacing-m);
+    right: var(--spacing-m);
+  }
+
+  .link-field_error {
+    strong {
+      color: var(--color-error);
+      user-select: all;
+    }
   }
 
   .link-field_record-status {

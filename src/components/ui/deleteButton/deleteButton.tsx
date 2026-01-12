@@ -5,19 +5,25 @@ import { TDeleteButton } from './deleteButton.type'
 
 export default function DeleteButton(props: TDeleteButton) {
   return (
-    <button className={`delete-button ${props?.className ?? ''}`}>
+    <button
+      className={`delete-button ${props?.className ?? ''}`}
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+    >
       <p
         delete-label={props.label ?? 'Delete'}
         confirm-label={props.confirmLabel ?? 'Are you sure?'}
-        onClick={() => {
-          props.onConfirm?.()
+        onClick={(e) => {
+          props.onConfirm?.(e)
         }}
       ></p>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 640 640"
-        onClick={() => {
-          props.onConfirm?.()
+        onClick={(e) => {
+          props.onConfirm?.(e)
         }}
       >
         <path

@@ -12,12 +12,15 @@ import {
 import get from 'lodash/get'
 import { useEffect, useRef, useState } from 'react'
 import { getStatusLabel } from '../../utils/statusUtils'
+import DeleteButton from '../ui/deleteButton/deleteButton'
 import './link.css'
 import { TLink } from './link.type'
 
 export default function LinkField({ ctx }) {
   const currentValueRaw = get(ctx.formValues, ctx.fieldPath) ?? '{}',
     link = JSON.parse(currentValueRaw) as TLink
+
+  const [error, setError] = useState(null)
 
   const locale = ctx.locale || 'en'
 
@@ -41,13 +44,6 @@ export default function LinkField({ ctx }) {
   const [itemTypeKey, setItemTypeKey] = useState(link.itemTypeKey)
   const [status, setStatus] = useState(link.status)
   const [loading, setLoading] = useState(false)
-
-  // const validate = () => {
-  //     if (!link.text) {
-  //         ctx.setFieldValue(ctx.fieldPath, null);
-  //     }
-  //     console.log('link', link)
-  // }
 
   const client = buildClient({ apiToken, environment: ctx.environment })
   const setParameterValue = (parameterId: string, newValue: any) => {
@@ -79,10 +75,18 @@ export default function LinkField({ ctx }) {
 
     ;(async () => {
       setLoading(true)
-      const record = await client.items.find(recordId, {
-        locale
-      })
-      if (!record) {
+
+      let record
+
+      try {
+        record = await client.items.find(recordId, {
+          locale
+        })
+      } catch (error) {
+        setError(
+          `The record with ID <strong>${recordId}</strong> could not be found.`
+        )
+        setLoading(false)
         return
       }
 
@@ -194,27 +198,34 @@ export default function LinkField({ ctx }) {
           <div
             className="link-field_record"
             onClick={() => {
+              if (error) {
+                return
+              }
               ctx.editItem(recordId)
             }}
           >
-            {loading ? (
+            {!loading ? (
+              <DeleteButton
+                onConfirm={() => {
+                  // reset the record
+                  resetRecord()
+                }}
+              />
+            ) : null}
+            {error ? (
+              <div
+                className="link-field_error"
+                dangerouslySetInnerHTML={{ __html: error }}
+              ></div>
+            ) : loading ? (
               <div className="link-field_record-loading">
                 <Spinner size={24} />
               </div>
-            ) : (
+            ) : previewUrl ? (
               <>
-                <button
-                  className="link-field_record-remove remove-button"
-                  onClick={(event) => {
-                    // reset the record
-                    event.preventDefault()
-                    event.stopPropagation()
-                    resetRecord()
-                  }}
-                ></button>
                 <img
                   className="link-field_record-image"
-                  src={`${previewUrl}`}
+                  src={previewUrl ?? ''}
                   alt="Preview image"
                 />
                 <div className="link-field_record-info">
@@ -225,6 +236,8 @@ export default function LinkField({ ctx }) {
                   </p>
                 </div>
               </>
+            ) : (
+              ''
             )}
           </div>
         )}

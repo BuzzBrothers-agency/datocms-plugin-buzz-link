@@ -9,19 +9,6 @@ import './css/index.css'
 import { render } from './utils/render.js'
 
 connect({
-  customBlockStylesForStructuredTextField(field: Field, ctx: FieldIntentCtx) {
-    const { fieldsInWhichAllowCustomStyles } = ctx.plugin.attributes.parameters
-
-    if (!fieldsInWhichAllowCustomStyles.includes(field.attributes.api_key)) {
-      console.log(
-        '⚠️ No custom styles allowed for this field',
-        field.attributes.api_key
-      )
-      return []
-    }
-
-    return ctx.plugin.attributes?.parameters?.textStyles ?? []
-  },
   manualFieldExtensions(ctx: IntentCtx) {
     return [
       {
